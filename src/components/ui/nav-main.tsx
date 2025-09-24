@@ -9,7 +9,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { CirclePlus, Mail } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { JSX } from "react";
 
 export function NavMain({
@@ -22,7 +23,6 @@ export function NavMain({
   }[];
 }) {
   const pathname = usePathname();
-  const { push } = useRouter();
 
   return (
     <SidebarGroup>
@@ -52,10 +52,12 @@ export function NavMain({
               <SidebarMenuButton
                 tooltip={item.title}
                 isActive={pathname?.includes(item.url)}
-                onClick={() => push(item.url)}
+                asChild
               >
-                {item.icon}
-                <span>{item.title}</span>
+                <Link href={item.url}>
+                  {item.icon}
+                  <span>{item.title}</span>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
