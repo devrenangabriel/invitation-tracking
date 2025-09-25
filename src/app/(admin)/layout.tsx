@@ -31,7 +31,7 @@ export default function AdminLayout({
         <CustomSidebar user={data.user} navMain={data.navMain} />
         <main className="w-full">
           <SidebarTrigger />
-          <div className="p-4 md:p-16">{children}</div>
+          <div className="p-4 md:px-6">{children}</div>
         </main>
       </SidebarProvider>
     </ProtectedRoute>

@@ -12,7 +12,7 @@ import {
 
 export default function NovoEventoPage() {
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       {/* Header com Breadcrumb */}
       <div className="flex flex-col space-y-2">
         <Breadcrumb>
