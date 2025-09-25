@@ -11,11 +11,11 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "dashboard",
+      url: "/dashboard",
     },
     {
       title: "Eventos",
-      url: "eventos",
+      url: "/eventos",
     },
   ],
 };
