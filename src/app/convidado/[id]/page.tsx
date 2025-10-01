@@ -26,7 +26,7 @@ export default async function ConvidadoPage({ params, searchParams }: ConvidadoP
 
   if (!eventoId) {
     return (
-      <main className="flex items-center justify-center min-h-screen">
+      <main className="flex items-start justify-center min-h-screen">
         <p className="text-red-500">⚠️ É necessário informar o eventoId na URL</p>
       </main>
     );
@@ -47,29 +47,23 @@ export default async function ConvidadoPage({ params, searchParams }: ConvidadoP
   const convidado = snapshot.data();
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-gray-50">
+    <main className="flex items-start justify-center min-h-screen bg-gray-50">
       <div className="bg-white p-6 rounded-2xl shadow-md w-full max-w-md space-y-4">
-        <h1 className="text-xl font-bold">Detalhes do Convidado</h1>
-
+        <h1 className="text-2xl font-bold">Olá, {convidado.titulo} {convidado.nome}</h1>
+        <div className="text-gray-600">
+            Você foi convidado para o Evento {"Teste"}.
+        </div>
         <div className="space-y-2 text-sm">
-          <p><strong>Nome:</strong> {convidado.nome}</p>
-          <p><strong>CPF:</strong> {convidado.cpf}</p>
-          <p><strong>Telefone:</strong> {convidado.telefone}</p>
-          <p><strong>Título:</strong> {convidado.titulo}</p>
-          <p><strong>Cidade:</strong> {convidado.cidade}</p>
+
+          <p className="font-bold text-gray-600">Local: {convidado.cidade}</p>
+          <p className="font-bold text-gray-600">Data: {convidado.data}</p>
+
         </div>
 
-        {convidado.voo ? (
-          <div className="space-y-2 text-sm border-t pt-4">
-            <h2 className="font-semibold">Informações de Voo</h2>
-            <p><strong>Número:</strong> {convidado.voo.num_voo}</p>
-            <p><strong>Saída:</strong> {convidado.voo.data_saida} às {convidado.voo.hora_saida}</p>
-            <p><strong>Chegada:</strong> {convidado.voo.data_chegada} às {convidado.voo.hora_chegada}</p>
-            <p><strong>Cia Aérea:</strong> {convidado.voo.ciaAerea}</p>
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">Nenhum voo cadastrado</p>
-        )}
+        <div className="mt-4 p-4 border border-gray-300 rounded-lg flex flex-col gap-2">
+            <p>Esse QR Code é a sua credencial de acesso.</p>
+        </div>
+
       </div>
     </main>
   );
