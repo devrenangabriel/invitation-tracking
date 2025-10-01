@@ -37,10 +37,12 @@ export default function EventsPage() {
       <ul className="space-y-2 pt-4">
         {eventos.map((evento) => (
           <li key={evento.id} className="p-4 border rounded">
-            <strong>{evento.nome}</strong> — {evento.local} <br />
-            <span className="text-sm text-muted-foreground">
-              {evento.data.toLocaleDateString("pt-BR")}
-            </span>
+            <Link href={`/eventos/${evento.id}`}>
+              <strong>{evento.nome}</strong> — {evento.local} <br />
+              <span className="text-sm text-muted-foreground">
+                {evento.data.toLocaleDateString("pt-BR")}
+              </span>
+            </Link>
           </li>
         ))}
       </ul>
