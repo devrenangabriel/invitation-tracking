@@ -68,7 +68,6 @@ export default async function EventoPage({ params }: EventoPageProps) {
           Convidados ({convidados.length})
         </h2>
 
-        {/* 👇 2. USE O COMPONENTE AQUI */}
         <ListaConvidados convidados={convidados} eventoId={id} />
       </div>
     </div>

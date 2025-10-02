@@ -1,4 +1,4 @@
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import qrcode from "qrcode";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ type ConvidadoPageProps = {
  *  - Recebe via `searchParams` o `eventoId` que identifica o evento no Firestore.
  *  - Caso `eventoId` não seja informado, mostra uma mensagem de erro.
  *  - Busca os dados do convidado na coleção `eventos/{eventoId}/convidados/{id}` do Firestore.
+ *  - Busca também as informações do evento em `eventos/{eventoId}`.
  *  - Caso o convidado não exista, exibe mensagem de "não encontrado".
  *  - Renderiza os dados básicos do convidado (nome, CPF, telefone, título, cidade).
  *  - Caso o convidado tenha informações de voo, renderiza também esses detalhes.
@@ -44,6 +45,28 @@ export default async function ConvidadoPage({
         </p>
       </main>
     );
+  }
+
+  // 🔹 Buscar evento
+  const eventoRef = doc(db, "eventos", eventoId);
+  const eventoSnap = await getDoc(eventoRef);
+
+  if (!eventoSnap.exists()) {
+    return (
+      <main className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500">Evento não encontrado.</p>
+      </main>
+    );
+  }
+
+  const evento = eventoSnap.data();
+
+  // 🔹 Garantir formatação da data
+  let dataEvento: string | null = null;
+  if (evento.data instanceof Timestamp) {
+    dataEvento = evento.data.toDate().toLocaleDateString("pt-BR");
+  } else if (evento.data) {
+    dataEvento = String(evento.data);
   }
 
   // 1. Buscar convidado
@@ -71,11 +94,14 @@ export default async function ConvidadoPage({
           Olá, {convidado.titulo} {convidado.nome}
         </h1>
         <div className="text-gray-600">
-          Você foi convidado para o Evento {"Teste"}.
+          Você foi convidado para o Evento {evento.nome}.
         </div>
         <div className="space-y-2 text-sm">
-          <p className="font-bold text-gray-600">Local: {convidado.cidade}</p>
-          <p className="font-bold text-gray-600">Data: {convidado.data}</p>
+          <p className="font-bold text-gray-600">Local: {evento.local}</p>
+          <p className="font-bold text-gray-600">
+            Data: {dataEvento ?? "Não informada"}
+          </p>
+          <p className="text-gray-500">Sua cidade: {convidado.cidade}</p>
         </div>
 
         <form
