@@ -1,12 +1,22 @@
-// src/components/ListaConvidados.tsx
-
-"use client"; // ESSENCIAL: Transforma este em um Componente de Cliente
+"use client";
 
 import { useState } from "react";
 import type { Convidado } from "@/lib/types"; // Importe seu tipo Convidado
 import { CheckIcon, LinkIcon } from "lucide-react";
 
-// O componente recebe os convidados e o ID do evento como props
+/**
+ * Renderiza uma lista interativa de convidados para um evento específico.
+ *
+ * Este é um Componente de Cliente (`'use client'`) que exibe os detalhes de cada
+ * convidado em um card. Para cada card, ele gera um "magic link" único e fornece
+ * um botão para copiá-lo para a área de transferência, exibindo um feedback
+ * visual temporário de sucesso.
+ *
+ * @param props - As propriedades do componente.
+ * @param props.convidados - Um array de objetos `Convidado` a serem exibidos.
+ * @param props.eventoId - O ID do evento, usado para construir o "magic link" de cada convidado.
+ * @returns Um elemento JSX que renderiza a lista de convidados.
+ */
 export default function ListaConvidados({
   convidados,
   eventoId,

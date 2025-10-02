@@ -15,6 +15,20 @@ type EventoPageProps = {
   params: { id: string };
 };
 
+/**
+ * Página de detalhes para um evento específico.
+ *
+ * Este é um Componente de Servidor (`async`) do Next.js, responsável por:
+ * 1. Buscar os dados de um evento específico no Firestore usando o ID da URL.
+ * 2. Buscar a subcoleção de convidados associada a esse evento.
+ * 3. Renderizar as informações do evento e delegar a exibição da lista de
+ * convidados para o componente de cliente `<ListaConvidados />`.
+ *
+ * @param props - As propriedades da página, fornecidas pelo Next.js.
+ * @param props.params - Os parâmetros da rota dinâmica.
+ * @param props.params.id - O ID do evento a ser buscado e exibido.
+ * @returns Uma Promise que resolve para o elemento JSX da página do evento.
+ */
 export default async function EventoPage({ params }: EventoPageProps) {
   const { id } = params;
 
