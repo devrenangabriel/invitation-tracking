@@ -1,7 +1,7 @@
 // utils/parseConvidadosExcel.ts
 import * as XLSX from "xlsx";
 import { nanoid } from "nanoid";
-import { Convidado } from "./types";
+import { Convidado, TrajetoStatus } from "./types";
 
 export async function parseGuestExcel(file: File): Promise<Convidado[]> {
   return new Promise((resolve, reject) => {
@@ -33,7 +33,15 @@ export async function parseGuestExcel(file: File): Promise<Convidado[]> {
                 ciaAerea: String(row["ciaAerea"] || "").trim(),
               }
             : null,
-          trajeto: {},
+          trajeto: [
+            {
+              data: new Date().toLocaleString("pt-BR", {
+                timeZone: "America/Sao_Paulo",
+              }),
+              status: TrajetoStatus.PENDENTE,
+              idEquipeDeCampo: null,
+            },
+          ],
         }));
 
         resolve(convidados);

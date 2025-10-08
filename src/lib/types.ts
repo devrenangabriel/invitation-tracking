@@ -1,3 +1,12 @@
+export enum TrajetoStatus {
+  PENDENTE = "Pendente",
+  CONFIRMADO = "Confirmado",
+  NO_VOO = "No Voo",
+  COM_EQUIPE = "Com a Equipe de Campo",
+  COM_MOTORISTA = "Com o Motorista",
+  FINALIZADO = "Finalizado",
+}
+
 export type Convidado = {
   id: string;
   nome: string;
@@ -13,7 +22,11 @@ export type Convidado = {
     hora_chegada: string;
     ciaAerea: string;
   } | null;
-  trajeto: Record<string, any>;
+  trajeto: {
+    data: string;
+    status: TrajetoStatus;
+    idEquipeDeCampo: string | null;
+  }[];
 };
 
 export type Evento = {
