@@ -5,20 +5,54 @@ import { CheckIcon, LinkIcon } from "lucide-react";
 import { useState } from "react";
 
 interface ConvidadoItemProps {
+  /** 
+   * Objeto contendo os dados do convidado.
+   * Inclui informações como nome, telefone, título e, opcionalmente, dados de voo.
+   */
   convidado: Convidado;
+
+  /**
+   * Identificador único do evento ao qual o convidado pertence.
+   * Utilizado para compor o link personalizado (Magic Link).
+   */
   eventoId: string;
 }
 
+/**
+ * Componente responsável por exibir as informações resumidas de um convidado,
+ * incluindo nome, telefone, título e dados de voo, além de permitir copiar o "Magic Link"
+ * — um link direto para a página do convidado no evento.
+ *
+ * Funcionalidades:
+ * - Renderiza os dados principais do convidado.
+ * - Exibe um botão que copia o link completo do convidado para a área de transferência.
+ * - Mostra feedback visual ("Copiado!") após a ação de cópia.
+ *
+ * @component
+ * @param {ConvidadoItemProps} props - Propriedades contendo o convidado e o evento associado.
+ * @returns {JSX.Element} Um item de lista representando o convidado, com botão de copiar link.
+ */
 export function ConvidadoItem({ eventoId, convidado: c }: ConvidadoItemProps) {
+  /**
+   * Estado que guarda o ID do convidado cujo link foi copiado recentemente.
+   * Utilizado para exibir feedback visual temporário ("Copiado!").
+   */
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  /**
+   * Copia o link do convidado para a área de transferência.
+   * 
+   * Monta o link com base na origem da janela (`window.location.origin`),
+   * no ID do convidado e no ID do evento, e copia-o usando a API `navigator.clipboard`.
+   * Após copiar, exibe a mensagem "Copiado!" por 2 segundos.
+   *
+   * @param {string} convidadoId - ID do convidado cujo link será copiado.
+   */
   const handleCopyLink = (convidadoId: string) => {
-    // Monta a URL completa para ser copiada
     const link = `${window.location.origin}/convidado/${convidadoId}?eventoId=${eventoId}`;
     navigator.clipboard.writeText(link);
-    setCopiedId(convidadoId); // Ativa o feedback visual "Copiado!"
+    setCopiedId(convidadoId);
 
-    // Reseta o feedback após 2 segundos
     setTimeout(() => {
       setCopiedId(null);
     }, 2000);
