@@ -83,9 +83,12 @@ export default async function ConvidadoPage({
 
   const convidado = snapshot.data();
 
-  const qrCode = await qrcode.toDataURL(
-    `https://seu-dominio.com/convidado/${id}?eventoId=${eventoId}`
-  );
+  const qrData = JSON.stringify({
+    convidadoId: id,
+    eventoId,
+  });
+
+  const qrCode = await qrcode.toDataURL(qrData);
 
   return (
     <main className="flex items-start justify-center min-h-screen bg-gray-50">
