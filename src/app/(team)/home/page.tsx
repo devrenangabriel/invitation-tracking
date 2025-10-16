@@ -252,7 +252,12 @@ export default function HomeTeam() {
       await updateDoc(convidadoRef, {
         trajeto: [
           ...(convidado.trajeto || []),
-          { status: novoStatus, data: new Date() },
+          {
+            status: novoStatus,
+            data: new Date().toLocaleString("pt-BR", {
+              timeZone: "America/Sao_Paulo",
+            }),
+          },
         ],
       });
 
