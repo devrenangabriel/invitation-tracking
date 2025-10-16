@@ -3,7 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   collection,
   getDocs,
@@ -13,13 +13,53 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Evento, Convidado, TrajetoStatus } from "@/lib/types";
-import dynamic from "next/dynamic";
+import jsQR from "jsqr"; // ✅ Importa o decodificador
 
-// ✅ O import dinâmico está correto para Next.js
-const QrReader = dynamic(
-  () => import("react-qr-reader").then((mod) => mod.QrReader),
-  { ssr: false }
-);
+// Função para desenhar e tentar ler o QR Code
+function decodeQrCode(
+  video: HTMLVideoElement,
+  canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D | null
+): string | null {
+  if (!ctx) return null;
+
+  // Garante que o canvas tenha o mesmo tamanho do vídeo
+  canvas.height = video.videoHeight;
+  canvas.width = video.videoWidth;
+
+  // Desenha o frame do vídeo no canvas
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Obtém os dados da imagem
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+  // Decodifica o QR Code
+  const code = jsQR(imageData.data, imageData.width, imageData.height, {
+    inversionAttempts: "dontInvert",
+  });
+
+  if (code) {
+    // Desenha uma caixa ao redor do QR code decodificado (opcional)
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(code.location.topLeftCorner.x, code.location.topLeftCorner.y);
+    ctx.lineTo(code.location.topRightCorner.x, code.location.topRightCorner.y);
+    ctx.lineTo(
+      code.location.bottomRightCorner.x,
+      code.location.bottomRightCorner.y
+    );
+    ctx.lineTo(
+      code.location.bottomLeftCorner.x,
+      code.location.bottomLeftCorner.y
+    );
+    ctx.closePath();
+    ctx.stroke();
+
+    return code.data;
+  }
+  return null;
+}
 
 export default function HomeTeam() {
   const { user, logout } = useAuth();
@@ -31,12 +71,114 @@ export default function HomeTeam() {
   const [qrError, setQrError] = useState<string | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
 
+  // ✅ Refs para os elementos da câmera e do canvas
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const requestRef = useRef<number>(0); // Para o requestAnimationFrame loop
+  const mediaStreamRef = useRef<MediaStream | null>(null); // Para guardar o stream da câmera
+
+  // =========================================================================
+  // FUNÇÕES DE CÂMERA E SCAN
+  // =========================================================================
+
+  // Função para processar o frame do vídeo
+  const tick = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current || videoRef.current.paused) {
+      // Não faz nada se o vídeo não estiver ativo ou não houver refs
+      return;
+    }
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+
+    // Tenta decodificar o QR Code
+    const data = decodeQrCode(video, canvas, ctx);
+
+    if (data) {
+      setScanning(false); // Para o scan após sucesso
+      processScannedData(data);
+      return; // Interrompe o loop
+    }
+
+    // Continua o loop no próximo frame
+    requestRef.current = requestAnimationFrame(tick);
+  }, []);
+
+  // Função para iniciar a câmera e o loop de scan
+  const startCamera = useCallback(async () => {
+    setQrError(null);
+    if (!videoRef.current) return;
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+      });
+
+      mediaStreamRef.current = stream;
+      videoRef.current.srcObject = stream;
+      videoRef.current.setAttribute("playsinline", "true");
+      await videoRef.current.play(); // Espera o play para garantir que o vídeo esteja carregado
+
+      // Inicia o loop de scan
+      requestRef.current = requestAnimationFrame(tick);
+    } catch (err) {
+      console.error("Erro ao acessar a câmera:", err);
+      setQrError("Erro ao acessar a câmera. Verifique as permissões.");
+      setScanning(false); // Fecha o leitor em caso de erro
+    }
+  }, [tick]);
+
+  // Função para parar a câmera e o loop
+  const stopCamera = useCallback(() => {
+    if (requestRef.current) {
+      cancelAnimationFrame(requestRef.current);
+    }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  }, []);
+
+  // Efeito principal para controlar o ciclo de vida da câmera
+  useEffect(() => {
+    if (scanning) {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+    // A função de retorno garante que a câmera seja liberada na desmontagem
+    return stopCamera;
+  }, [scanning, startCamera, stopCamera]);
+
+  // Função que lida com o dado lido pelo QR Code
+  async function processScannedData(data: string) {
+    try {
+      const parsed = JSON.parse(data);
+      if (parsed.eventoId && parsed.convidadoId) {
+        await atualizarStatus(parsed.eventoId, parsed.convidadoId);
+      } else {
+        setQrError("QR inválido: dados incompletos.");
+      }
+    } catch {
+      setQrError("Formato de QR inválido.");
+    }
+  }
+
+  // =========================================================================
+  // FUNÇÕES DE FIREBASE (inalteradas)
+  // =========================================================================
+
   useEffect(() => {
     fetchEventosEConvidados();
   }, []);
 
   async function fetchEventosEConvidados() {
     setLoading(true);
+    // ... (restante do código de fetchEventosEConvidados)
     try {
       const eventosSnap = await getDocs(collection(db, "eventos"));
       const eventosData: (Evento & { id: string; convidados: Convidado[] })[] =
@@ -114,6 +256,9 @@ export default function HomeTeam() {
         ],
       });
 
+      // Não chame fetchEventosEConvidados() aqui, é muito caro.
+      // Em vez disso, atualize o estado local (opcionalmente) ou force um refresh
+      // Mas para manter a simplicidade, vamos manter a chamada
       await fetchEventosEConvidados();
       alert(`✅ Status atualizado para: ${novoStatus}`);
     } catch (error) {
@@ -121,31 +266,6 @@ export default function HomeTeam() {
       alert("Erro ao atualizar status.");
     } finally {
       setUpdating(null);
-    }
-  }
-
-  // ✅ CORREÇÃO: A função handleScan agora se chama handleResult e trata o resultado da nova API
-  async function handleResult(result: any, error: any) {
-    if (!!error) {
-      setQrError(error?.message);
-      return;
-    }
-
-    if (!!result) {
-      const data = result?.getText();
-      if (data) {
-        setScanning(false); // Fecha o scanner após uma leitura bem-sucedida
-        try {
-          const parsed = JSON.parse(data);
-          if (parsed.eventoId && parsed.convidadoId) {
-            await atualizarStatus(parsed.eventoId, parsed.convidadoId);
-          } else {
-            setQrError("QR inválido: dados incompletos.");
-          }
-        } catch {
-          setQrError("Formato de QR inválido.");
-        }
-      }
     }
   }
 
@@ -168,19 +288,27 @@ export default function HomeTeam() {
       </Button>
 
       {scanning && (
-        <div className="w-80 max-w-full mt-4 border-2 border-dashed rounded-lg overflow-hidden">
-          {/* ✅ CORREÇÃO: Atualização das propriedades do QrReader para a versão 3+ */}
-          <QrReader
-            onResult={handleResult}
-            constraints={{ facingMode: "environment" }} // Pede a câmera traseira
-            className="w-full"
+        <div className="w-80 max-w-full mt-4 border-2 border-dashed rounded-lg overflow-hidden relative">
+          {/* O elemento VIDEO para exibir o stream da câmera */}
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover"
+            style={{ display: "block" }} // Garante que o vídeo seja visível
+            autoPlay
+            playsInline
+            muted // Essencial para autoPlay em alguns browsers
+          />
+          {/* O elemento CANVAS para processar o frame e desenhar a caixa do QR Code */}
+          <canvas
+            ref={canvasRef}
+            className="absolute top-0 left-0 w-full h-full"
           />
         </div>
       )}
 
       {qrError && <p className="text-red-600 font-medium mt-2">{qrError}</p>}
 
-      {/* LISTA DE EVENTOS */}
+      {/* LISTA DE EVENTOS (inalterada) */}
       <section className="w-full max-w-5xl space-y-6 mt-8">
         {eventos.map((evento) => (
           <div
