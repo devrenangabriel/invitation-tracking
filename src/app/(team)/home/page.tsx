@@ -1,3 +1,12 @@
+/**
+ - Exibir os eventos e seus respectivos convidados carregados do Firestore.
+ - Atualizar o status dos convidados conforme o fluxo do trajeto.
+ - Ler e processar QR Codes usando a câmera do dispositivo
+
+O QR Code deve conter um JSON com `eventoId` e `convidadoId` e quando lido com sucesso, dispara `atualizarStatus()` para registrar a atualização no Firestore.
+O leitor de QR Code é interrompido automaticamente após uma leitura bem-sucedida. 
+*/
+
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
