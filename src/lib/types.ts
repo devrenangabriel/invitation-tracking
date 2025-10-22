@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export enum TrajetoStatus {
   PENDENTE = "Pendente",
   CONFIRMADO = "Confirmado",
@@ -21,6 +23,8 @@ export type Convidado = {
     data_chegada: string;
     hora_chegada: string;
     ciaAerea: string;
+    aeroporto_lat: number | null;
+    aeroporto_log: number | null;
   } | null;
   trajeto: {
     data: string;
@@ -33,6 +37,8 @@ export type Evento = {
   id: string;
   nome: string;
   local: string;
-  data: string;
+  data: Timestamp; // armazenado no Firestore como Timestamp
+  latitude: number;
+  longitude: number;
   convidados: Convidado[];
 };
