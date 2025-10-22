@@ -3,9 +3,10 @@
 import { Convidado } from "@/lib/types";
 import { CheckIcon, LinkIcon } from "lucide-react";
 import { useState } from "react";
+import { Badge } from "./ui/badge";
 
 interface ConvidadoItemProps {
-  /** 
+  /**
    * Objeto contendo os dados do convidado.
    * Inclui informações como nome, telefone, título e, opcionalmente, dados de voo.
    */
@@ -41,7 +42,7 @@ export function ConvidadoItem({ eventoId, convidado: c }: ConvidadoItemProps) {
 
   /**
    * Copia o link do convidado para a área de transferência.
-   * 
+   *
    * Monta o link com base na origem da janela (`window.location.origin`),
    * no ID do convidado e no ID do evento, e copia-o usando a API `navigator.clipboard`.
    * Após copiar, exibe a mensagem "Copiado!" por 2 segundos.
@@ -75,6 +76,19 @@ export function ConvidadoItem({ eventoId, convidado: c }: ConvidadoItemProps) {
           <p className="text-sm text-gray-600">
             ✈️ Voo {c.voo.num_voo} — {c.voo.data_saida} {c.voo.hora_saida}
           </p>
+        )}
+        {c.trajeto[c.trajeto.length - 1].previsao_chegada && (
+          <Badge className="text-center bg-gray-500">
+            🕒 Previsão de chegada:
+            <br />
+            {new Date(
+              c.trajeto[c.trajeto.length - 1].previsao_chegada!
+            ).toLocaleString("pt-BR", {
+              timeZone: "America/Sao_Paulo",
+              dateStyle: "short",
+              timeStyle: "short",
+            })}
+          </Badge>
         )}
       </div>
 
