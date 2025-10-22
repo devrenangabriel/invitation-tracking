@@ -16,6 +16,8 @@ export default function CadastrarEventoForm() {
   const [nome, setNome] = useState("");
   const [local, setLocal] = useState("");
   const [data, setData] = useState("");
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [convidados, setConvidados] = useState<Convidado[]>([]);
   const [loading, setLoading] = useState(false);
@@ -41,15 +43,23 @@ export default function CadastrarEventoForm() {
     setLoading(true);
 
     try {
-      // 1. Criar evento
+      // validação básica
+      if (!lat || !lng || isNaN(Number(lat)) || isNaN(Number(lng))) {
+        toast.error("Por favor, insira coordenadas válidas.");
+        setLoading(false);
+        return;
+      }
+
+      // Criar evento com coordenadas
       const eventoRef = await addDoc(collection(db, "eventos"), {
         nome,
         local,
         data: Timestamp.fromDate(new Date(data)),
-        convidados: [], // mantemos vazio no doc principal
+        latitude: Number(lat),
+        longitude: Number(lng),
+        convidados: [],
       });
 
-      // 2. Adicionar convidados (se houver)
       if (convidados.length > 0) {
         for (const c of convidados) {
           await setDoc(doc(collection(eventoRef, "convidados"), c.id), c);
@@ -63,6 +73,8 @@ export default function CadastrarEventoForm() {
       setNome("");
       setLocal("");
       setData("");
+      setLat("");
+      setLng("");
       setFile(null);
       setConvidados([]);
     } catch (error) {
@@ -111,6 +123,34 @@ export default function CadastrarEventoForm() {
         </div>
       </div>
 
+      {/* Latitude e Longitude */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="lat">Latitude</Label>
+          <Input
+            id="lat"
+            type="number"
+            step="any"
+            placeholder="-23.55052"
+            value={lat}
+            onChange={(e) => setLat(e.target.value)}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="lng">Longitude</Label>
+          <Input
+            id="lng"
+            type="number"
+            step="any"
+            placeholder="-46.633308"
+            value={lng}
+            onChange={(e) => setLng(e.target.value)}
+            required
+          />
+        </div>
+      </div>
+
       {/* Upload convidados */}
       <div className="space-y-2">
         <Label htmlFor="file">Importar Convidados (opcional)</Label>
@@ -129,8 +169,6 @@ export default function CadastrarEventoForm() {
             )}
           </CardContent>
         </Card>
-
-        {/* input escondido */}
         <Input
           id="file"
           type="file"
@@ -140,7 +178,6 @@ export default function CadastrarEventoForm() {
         />
       </div>
 
-      {/* Botão */}
       <Button type="submit" disabled={loading}>
         {loading ? "Cadastrando..." : "Cadastrar Evento"}
       </Button>
