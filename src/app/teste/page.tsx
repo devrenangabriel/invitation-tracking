@@ -3,7 +3,7 @@ import { useState } from "react";
 
 export default function DistanceCalculator() {
   const [origin, setOrigin] = useState("-7.0733618,-41.4650645"); // Coords de São Paulo (exemplo)
-  const [destination, setDestination] = useState("-7.078716, -41.432474"); // Coords do Rio de Janeiro (exemplo)
+  const [destination, setDestination] = useState("-26.999804,-49.324319"); // Coords do Rio de Janeiro (exemplo)
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

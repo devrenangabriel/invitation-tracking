@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     if (data.status === "OK") {
       const route = data.routes[0].legs[0];
       const distance = route.distance.text; // Ex: "21,4 km"
-      const duration = route.duration.text; // Ex: "23 minutos"
+      const duration = route.duration.value; // Ex: "1800" (em segundos)
 
       return NextResponse.json({ distance, duration });
     } else {

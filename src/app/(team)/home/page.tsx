@@ -219,18 +219,20 @@ export default function HomeTeam() {
     }
   }
 
-  async function atualizarStatus(eventoId: string, convidadoId: string) {
+  async function atualizarStatus(evento: Evento, convidadoId: string) {
     try {
       setUpdating(convidadoId);
       const convidadoRef = doc(
         db,
         "eventos",
-        eventoId,
+        evento.id,
         "convidados",
         convidadoId
       );
       const convidadoSnap = await getDoc(convidadoRef);
       if (!convidadoSnap.exists()) return;
+
+      let previsao_chegada: string | null = null;
 
       const convidado = convidadoSnap.data() as Convidado;
       const ultimoStatus =
@@ -249,6 +251,18 @@ export default function HomeTeam() {
         novoStatus = TrajetoStatus.COM_EQUIPE;
       } else if (ultimoStatus === TrajetoStatus.COM_EQUIPE) {
         novoStatus = TrajetoStatus.COM_MOTORISTA;
+
+        const response = await fetch(
+          `/api/directions?origin=${evento.latitude},${evento.longitude}&destination=${convidado.voo?.aeroporto_lat},${convidado.voo?.aeroporto_log}`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+
+          previsao_chegada = new Date(
+            Date.now() + data.duration * 1000
+          ).toISOString();
+        }
       }
 
       if (!novoStatus) {
@@ -266,6 +280,7 @@ export default function HomeTeam() {
             data: new Date().toLocaleString("pt-BR", {
               timeZone: "America/Sao_Paulo",
             }),
+            previsao_chegada,
           },
         ],
       });
@@ -378,7 +393,7 @@ export default function HomeTeam() {
                         className="mt-3"
                         variant="outline"
                         disabled={isFinal || updating === c.id}
-                        onClick={() => atualizarStatus(evento.id, c.id)}
+                        onClick={() => atualizarStatus(evento, c.id)}
                       >
                         {isFinal
                           ? "Finalizado ✅"

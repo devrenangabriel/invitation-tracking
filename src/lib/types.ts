@@ -30,6 +30,7 @@ export type Convidado = {
     data: string;
     status: TrajetoStatus;
     idEquipeDeCampo: string | null;
+    previsao_chegada?: string | null;
   }[];
 };
 
