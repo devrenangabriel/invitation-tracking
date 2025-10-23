@@ -1,6 +1,25 @@
 // app/api/directions/route.js
 import { NextResponse } from "next/server";
 
+/**
+ * Manipulador da rota GET para buscar direções entre dois pontos usando a API do Google Maps.
+ *
+ * Esta função recebe parâmetros de consulta (`origin` e `destination`) na URL da requisição
+ * e utiliza a Google Maps Directions API para obter informações sobre o trajeto, incluindo
+ * distância e duração. 
+ *
+ * Caso os parâmetros obrigatórios não sejam fornecidos ou a chave da API não esteja configurada,
+ * a função retorna um erro apropriado.
+ *
+ * @param {Request} request - Objeto da requisição HTTP contendo os parâmetros da URL.
+ * @returns {Promise<NextResponse>} Resposta JSON com a distância e duração do trajeto,
+ * ou uma mensagem de erro em caso de falha.
+ *
+ * Exemplo de uso:
+ * GET /api/directions?origin=São+Paulo&destination=Campinas
+ * Retorna: { "distance": "98,3 km", "duration": 5400 }
+ */
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const origin = searchParams.get("origin");
