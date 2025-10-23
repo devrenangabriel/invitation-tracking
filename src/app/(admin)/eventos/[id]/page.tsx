@@ -14,6 +14,17 @@ type EventoPageProps = {
   params: { id: string };
 };
 
+/**
+ * Página de detalhes de um evento específico.
+ *
+ * Esta função busca os dados de um evento no Firestore com base no ID fornecido
+ * através dos parâmetros da rota. Caso o evento não seja encontrado, é exibida
+ * uma mensagem de erro. Caso exista, renderiza as informações do evento (nome,
+ * local e data) e uma lista de convidados associada ao evento.
+ *
+ * @param {EventoPageProps} params - Parâmetros da rota contendo o ID do evento.
+ * @returns {JSX.Element} Página com informações do evento e a lista de convidados.
+ */
 export default async function EventoPage({ params }: EventoPageProps) {
   const { id } = params;
 
