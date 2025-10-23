@@ -2,7 +2,19 @@
 import * as XLSX from "xlsx";
 import { nanoid } from "nanoid";
 import { Convidado, TrajetoStatus } from "./types";
-
+/**
+ * @summary Lê um arquivo Excel (.xlsx) e o converte em uma lista de objetos `Convidado`.
+ * @description Esta função utiliza um FileReader para ler o arquivo como ArrayBuffer
+ * e a biblioteca XLSX (SheetJS) para processar os dados da primeira planilha.
+ * Ela mapeia as colunas do Excel para a interface `Convidado`,
+ * gerando um `id` único com `nanoid`, tratando dados de voo
+ * condicionalmente e inicializando um `trajeto` padrão para cada convidado.
+ *
+ * @param {File} file O arquivo .xlsx selecionado pelo usuário.
+ * @returns {Promise<Convidado[]>} Uma Promise que resolve com um array de `Convidado`.
+ * @rejects {Error} Rejeita a Promise se ocorrer um erro durante a leitura
+ * ou o processamento do arquivo (ex: formato inválido ou erro de parse).
+ */
 export async function parseGuestExcel(file: File): Promise<Convidado[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
