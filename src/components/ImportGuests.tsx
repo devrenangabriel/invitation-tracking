@@ -8,6 +8,15 @@ import { toast } from "sonner";
 import { Convidado } from "@/lib/types";
 import { parseGuestExcel } from "@/lib/parseGuestExcel";
 
+/**
+@summary Componente de cliente para importação de convidados via Excel.
+@description Renderiza uma interface de upload de arquivo (.xlsx).
+Utiliza a função parseGuestExcel para ler o arquivo selecionado,
+armazena os convidados em um estado local e exibe uma pré-visualização
+dos primeiros 5 convidados importados.*
+@returns {JSX.Element} O componente de UI para importação de convidados.
+*/
+
 export default function ImportGuests() {
   const [file, setFile] = useState<File | null>(null);
   const [convidados, setConvidados] = useState<Convidado[]>([]);
