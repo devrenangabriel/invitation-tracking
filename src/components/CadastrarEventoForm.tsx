@@ -12,6 +12,25 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Convidado } from "@/lib/types";
 import { parseGuestExcel } from "@/lib/parseGuestExcel";
 
+/**
+ * Componente de formulário para cadastro de novos eventos.
+ *
+ * Este componente permite ao usuário cadastrar um evento com nome, local, data e coordenadas
+ * geográficas (latitude e longitude). Além disso, é possível importar uma lista de convidados
+ * a partir de um arquivo Excel (.xlsx). 
+ *
+ * As informações são salvas no Firestore, criando um documento na coleção "eventos" e, caso
+ * existam convidados importados, adicionando-os como subcoleção do evento criado.
+ *
+ * Funcionalidades principais:
+ * - Cadastro de evento com informações básicas e coordenadas geográficas.
+ * - Upload e leitura de arquivo Excel contendo convidados.
+ * - Feedback visual via `toast` (mensagens de sucesso ou erro).
+ * - Reset automático do formulário após o cadastro.
+ *
+ * @returns {JSX.Element} Formulário completo para cadastro de eventos e importação de convidados.
+ */
+
 export default function CadastrarEventoForm() {
   const [nome, setNome] = useState("");
   const [local, setLocal] = useState("");
@@ -37,6 +56,13 @@ export default function CadastrarEventoForm() {
       }
     }
   };
+
+  /**
+   * Manipula o envio do formulário de cadastro do evento.
+   * Cria o documento do evento no Firestore e adiciona convidados, se existirem.
+   *
+   * @param {React.FormEvent} e - Evento de submissão do formulário.
+   */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
