@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import ExportarRelatorioEvento from "@/components/ExportarRelatorioEvento";
 
 type EventoPageProps = {
   params: { id: string };
@@ -63,6 +64,7 @@ export default async function EventoPage({ params }: EventoPageProps) {
         <p className="text-gray-600">
           📅 {evento.data?.toDate().toLocaleDateString("pt-BR")}
         </p>
+        <ExportarRelatorioEvento eventoId={id} />
       </div>
 
       {/* Lista de convidados em tempo real */}
