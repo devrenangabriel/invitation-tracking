@@ -58,12 +58,14 @@ export default async function EventoPage({ params }: EventoPageProps) {
       </Breadcrumb>
 
       <hr />
-      <div className="bg-white rounded-xl shadow p-6 space-y-2">
-        <h1 className="text-2xl font-bold">{evento.nome}</h1>
-        <p className="text-gray-600">📍 {evento.local}</p>
-        <p className="text-gray-600">
-          📅 {evento.data?.toDate().toLocaleDateString("pt-BR")}
-        </p>
+      <div className="flex shadow p-6 bg-white rounded-xl w-full justify-between items-center">
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold">{evento.nome}</h1>
+          <p className="text-gray-600">📍 {evento.local}</p>
+          <p className="text-gray-600">
+            📅 {evento.data?.toDate().toLocaleDateString("pt-BR")}
+          </p>
+        </div>
         <ExportarRelatorioEvento eventoId={id} />
       </div>
 
