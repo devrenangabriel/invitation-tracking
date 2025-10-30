@@ -7,7 +7,27 @@ import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Evento, Convidado } from "@/lib/types";
-
+/**
+ * Componente responsável por gerar e exportar o relatório completo de um evento.
+ *
+ * Este componente:
+ * - Busca as informações de um evento específico no Firestore.
+ * - Coleta todos os convidados e seus trajetos relacionados.
+ * - Gera um arquivo Excel (.xlsx) contendo:
+ *   1. Uma aba com informações gerais do evento.
+ *   2. Uma aba detalhada onde **cada linha representa uma etapa (trajeto)**
+ *      de um convidado, permitindo visualizar o histórico completo.
+ * - Permite baixar o arquivo Excel através de um botão.
+ *
+ * @component
+ * @param {Object} props - Propriedades do componente.
+ * @param {string} props.eventoId - ID do evento no Firestore que será exportado.
+ *
+ * @example
+ * <ExportarRelatorioEvento eventoId="123abc" />
+ *
+ * @returns {JSX.Element} Um botão que, ao ser clicado, gera e baixa o relatório.
+ */
 export default function ExportarRelatorioEvento({
   eventoId,
 }: {
