@@ -6,7 +6,23 @@ import { collection, getDocs } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrajetoStatus, Convidado } from "@/lib/types";
 import { Loader2 } from "lucide-react";
-
+/**
+ * Componente responsável por exibir o **Painel do Administrador** com dados consolidados
+ * sobre eventos e convidados armazenados no Firestore.
+ *
+ * Este componente:
+ * - Busca todos os **eventos** cadastrados na coleção principal do Firestore.
+ * - Acessa as subcoleções de **convidados** de cada evento, consolidando todos os registros.
+ * - Calcula automaticamente:
+ *   1. O total de eventos cadastrados.
+ *   2. O total de convidados associados.
+ *   3. Os percentuais de status (como Confirmado, Finalizado etc.) considerando o último trajeto de cada convidado.
+ * - Exibe os resultados em cards resumidos e em uma seção visual com a distribuição percentual por status.
+ * - Mostra um estado de carregamento enquanto os dados são processados.
+ *
+ *
+ * @returns {JSX.Element} Interface visual contendo estatísticas resumidas de eventos e convidados.
+ */ 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [totalEventos, setTotalEventos] = useState(0);
