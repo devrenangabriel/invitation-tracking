@@ -219,9 +219,30 @@ export default function HomeTeam() {
     }
   }
 
-  async function atualizarStatus(evento: Evento, convidadoId: string) {
+  async function atualizarStatus(eventoParam: Evento | string, convidadoId: string) {
+    // Normaliza: se veio apenas o ID do evento (string) buscamos o documento do evento.
+    // Isso garante que doc(db, "eventos", eventoId, ...) receba uma string válida e evita erros internos que chamam indexOf.
     try {
       setUpdating(convidadoId);
+
+      // Obtenha o objeto do evento quando necessário
+      let evento: Evento & { id: string };
+      if (typeof eventoParam === "string") {
+        const eventoSnap = await getDoc(doc(db, "eventos", eventoParam));
+        if (!eventoSnap.exists()) {
+          setUpdating(null);
+          return;
+        }
+        evento = { id: eventoSnap.id, ...(eventoSnap.data() as Evento) };
+      } else {
+        // Quando a função é chamada a partir da UI (botão), o evento já contém id
+        evento = eventoParam as Evento & { id: string | undefined };
+        if (!evento.id) {
+          setUpdating(null);
+          return;
+        }
+      }
+
       const convidadoRef = doc(
         db,
         "eventos",
@@ -230,7 +251,10 @@ export default function HomeTeam() {
         convidadoId
       );
       const convidadoSnap = await getDoc(convidadoRef);
-      if (!convidadoSnap.exists()) return;
+      if (!convidadoSnap.exists()) {
+        setUpdating(null);
+        return;
+      }
 
       let previsao_chegada: string | null = null;
 
@@ -266,9 +290,7 @@ export default function HomeTeam() {
       }
 
       if (!novoStatus) {
-        alert(
-          "Este convidado já está com o motorista. Não é possível alterar."
-        );
+        setUpdating(null);
         return;
       }
 
@@ -285,14 +307,10 @@ export default function HomeTeam() {
         ],
       });
 
-      // Não chame fetchEventosEConvidados() aqui, é muito caro.
-      // Em vez disso, atualize o estado local (opcionalmente) ou force um refresh
-      // Mas para manter a simplicidade, vamos manter a chamada
+      // Recarrega eventos (ok manter para simplicidade)
       await fetchEventosEConvidados();
-      alert(`✅ Status atualizado para: ${novoStatus}`);
     } catch (error) {
       console.error(error);
-      alert("Erro ao atualizar status.");
     } finally {
       setUpdating(null);
     }
